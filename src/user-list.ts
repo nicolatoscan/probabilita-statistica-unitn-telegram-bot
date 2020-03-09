@@ -8,15 +8,24 @@ export interface UserData {
 class UserList {
 
     private fileName: string = "usernames.json";
-    private users: { [id: string] : UserData; } = {}
+    private users: { [id: string]: UserData; } = {}
 
     constructor() {
         if (fs.existsSync(this.fileName))
             this.readFile();
+
+    }
+
+    private updateFile(): void {
+        fs.writeFileSync(this.fileName, JSON.stringify(this.users));
+    }
+
+    private readFile(): void {
+        this.users = JSON.parse(fs.readFileSync(this.fileName).toString());
     }
 
 
-    public getUserByChatId(chatId: string) : string {
+    public getUserByChatId(chatId: string): string {
         return this.users[chatId].username;
     }
 
@@ -30,7 +39,7 @@ class UserList {
         }
     }
 
-    public editNotification(chatId: string, status: boolean) : boolean {
+    public editNotification(chatId: string, status: boolean): boolean {
         if (this.users[chatId]) {
             if (this.users[chatId].notification !== status) {
                 this.users[chatId].notification = status;
@@ -42,14 +51,14 @@ class UserList {
         }
     }
 
-    private updateFile(): void {
-        fs.writeFileSync(this.fileName, JSON.stringify(this.users));
+    public getUserWithNotification(): string[] {
+        var res: string[] = [];
+        for (let u in this.users) {
+            if (this.users[u].notification)
+                res.push(u);
+        }
+        return res;
     }
-
-    private readFile(): void {
-        this.users = JSON.parse(fs.readFileSync(this.fileName).toString());
-    }
-
 }
 
 const userList = new UserList();
