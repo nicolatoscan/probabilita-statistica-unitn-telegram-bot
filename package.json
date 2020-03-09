@@ -1,0 +1,26 @@
+{
+  "name": "probabilita-statistica-unitn-telegram-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsc-watch --onSuccess \"node bin/index\"",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NicolaToscan/probabilita-statistica-unitn-telegram-bot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NicolaToscan/probabilita-statistica-unitn-telegram-bot/issues"
+  },
+  "homepage": "https://github.com/NicolaToscan/probabilita-statistica-unitn-telegram-bot#readme",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "dotenv": "^8.2.0",
+    "telegraf": "^3.36.0"
+  }
+}
