@@ -1,6 +1,7 @@
 import * as schedule from 'node-schedule'
 import userList from './user-list';
 import Telegram, { ContextMessageUpdate } from "telegraf"
+import votiManager from './voti-manager';
 
 
 class NotificationManager {
@@ -21,13 +22,14 @@ class NotificationManager {
     }
 
 
-    private sendNotification() {
+    private async sendNotification() {
         if (!this.bot)
             return;
 
         let users = userList.getUserWithNotification();
-        users.forEach((u) => {
-            this.bot.telegram.sendMessage(u, "Ciaone");
+        users.forEach(async (u) => {
+            console.log()
+            this.bot.telegram.sendMessage(u.chatId, await votiManager.getVotiMsg(u.username, true));
         })
     }
 }

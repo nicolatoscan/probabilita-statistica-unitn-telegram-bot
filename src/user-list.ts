@@ -51,12 +51,13 @@ class UserList {
         }
     }
 
-    public getUserWithNotification(): string[] {
-        var res: string[] = [];
+    public getUserWithNotification(): { username: string, chatId: string }[] {
+        var res: { username: string, chatId: string }[] = [];
         for (let u in this.users) {
             if (this.users[u].notification)
-                res.push(u);
+                res.push({ username: this.users[u].username, chatId: u });
         }
+        
         return res;
     }
 }

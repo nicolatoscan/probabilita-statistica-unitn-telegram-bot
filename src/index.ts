@@ -58,40 +58,13 @@ class Bot {
 
     private async voti(ctx: ContextMessageUpdate) {
         let username = userList.getUserByChatId(ctx.chat.id.toString());
-        if (username == null) {
-            ctx.reply("Username non trovato, puoi impostare l'username con\n/setusername nome.cognome")
-            return
-        }
-        let voti = await votiManager.getVoti(username);
-
-        if (!voti) {
-            ctx.reply("Impossibile trovare i voti")
-            return;
-        }
-
-        let res = `Voti di: ${username}\n\nMedia: ${voti.avg}\n`;
-        res += voti.voti.map(v => `${v.date}: ${v.value}`).join("\n")
-        ctx.reply(res);
+        ctx.reply(await votiManager.getVotiMsg(username));
     }
 
 
     private async ultimoVoto(ctx: ContextMessageUpdate) {
         let username = userList.getUserByChatId(ctx.chat.id.toString());
-        if (username == null) {
-            ctx.reply("Username non trovato, puoi impostare l'username con\n/setusername nome.cognome")
-            return
-        }
-        let voti = await votiManager.getVoti(username);
-
-        if (!voti) {
-            ctx.reply("Impossibile trovare i voti")
-            return;
-        }
-
-        let res = `Ultimo voto di: ${username}\n\n`;
-        res += `${voti.voti[0].date}: ${voti.voti[0].value}`
-        res += `Media: ${voti.avg}`
-        ctx.reply(res);
+        ctx.reply(await votiManager.getVotiMsg(username, true));
     }
 
 }

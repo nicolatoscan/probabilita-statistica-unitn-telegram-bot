@@ -10,10 +10,11 @@ export interface Voto {
 class VotiManager {
 
     constructor() {
-
     }
 
     public async getVoti(username: string): Promise<{ voti: Voto[], avg: number }> {
+
+        console.log("Voti di " + username)
 
         let xocpu = (await axios.post(
             'http://datascience.maths.unitn.it/ocpu/library/doexercises/R/renderResults',
@@ -21,8 +22,6 @@ class VotiManager {
         )).headers['x-ocpu-session'];
 
         let html: string = (await axios.get(`http://datascience.maths.unitn.it/ocpu/tmp/${xocpu}/files/output.html`)).data
-        console.log(html)
-        
 
         if (html.indexOf("Impossibile trovare i risultati") >= 0)
             return null;
@@ -66,6 +65,27 @@ class VotiManager {
             voti: voti,
             avg: voti.map(v => v.value).reduce((a, b) => a + b) / voti.length
         };
+
+    }
+
+    public async getVotiMsg(username: string, onlyLast: boolean = false): Promise<string> {
+        if (username == null)
+            return "Username non trovato, puoi impostare l'username con\n/setusername nome.cognome";
+
+        let voti = await this.getVoti(username);
+
+        if (!voti) {
+            return "Impossibile trovare i voti";
+        }
+
+        let res = `Voti di: ${username}\n\nMedia: ${voti.avg}\n`;
+        if (onlyLast) {
+            res += `${voti.voti[0].date}: ${voti.voti[0].value}`
+        } else {
+            res += voti.voti.map(v => `${v.date}: ${v.value}`).join("\n")
+        }
+
+        return res;
 
     }
 
