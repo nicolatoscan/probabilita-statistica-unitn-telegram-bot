@@ -56,36 +56,13 @@ class Bot {
     voti(ctx) {
         return __awaiter(this, void 0, void 0, function* () {
             let username = user_list_1.default.getUserByChatId(ctx.chat.id.toString());
-            if (username == null) {
-                ctx.reply("Username non trovato, puoi impostare l'username con\n/setusername nome.cognome");
-                return;
-            }
-            let voti = yield voti_manager_1.default.getVoti(username);
-            if (!voti) {
-                ctx.reply("Impossibile trovare i voti");
-                return;
-            }
-            let res = `Voti di: ${username}\n\nMedia: ${voti.avg}\n`;
-            res += voti.voti.map(v => `${v.date}: ${v.value}`).join("\n");
-            ctx.reply(res);
+            ctx.reply(yield voti_manager_1.default.getVotiMsg(username));
         });
     }
     ultimoVoto(ctx) {
         return __awaiter(this, void 0, void 0, function* () {
             let username = user_list_1.default.getUserByChatId(ctx.chat.id.toString());
-            if (username == null) {
-                ctx.reply("Username non trovato, puoi impostare l'username con\n/setusername nome.cognome");
-                return;
-            }
-            let voti = yield voti_manager_1.default.getVoti(username);
-            if (!voti) {
-                ctx.reply("Impossibile trovare i voti");
-                return;
-            }
-            let res = `Ultimo voto di: ${username}\n\n`;
-            res += `${voti.voti[0].date}: ${voti.voti[0].value}`;
-            res += `Media: ${voti.avg}`;
-            ctx.reply(res);
+            ctx.reply(yield voti_manager_1.default.getVotiMsg(username, true));
         });
     }
 }
