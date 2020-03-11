@@ -11,7 +11,8 @@ class Bot {
     private helpMessage: string = "Con questo bot potrai ricevere i voti degli esercizi di Proabilità e statistica con /voti o /ultimovoto,\n" +
         "Ricordati di impostare il tuo username con\n/setusername nome.cognome\n" +
         "(la matricola non è necessaria)\n" +
-        "Se vuoi puoi ricevere automaticamente il nuovo voto a mezzanotte attivando le notifiche con /attivanotifiche"
+        "Se vuoi puoi ricevere automaticamente il nuovo voto a mezzanotte attivando le notifiche con /attivanotifiche\n\n" + 
+        "Se il bot non funziona come dovrebbe o hai dei seggerimenti, contattami a @nicolatoscan"
 
     constructor() {
         this.bot = new Telegram(process.env.BOT_TOKEN)
