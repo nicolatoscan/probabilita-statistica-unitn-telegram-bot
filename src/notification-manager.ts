@@ -11,7 +11,7 @@ class NotificationManager {
 
     public start() {
         schedule.scheduleJob({hour: 0, minute: 1}, () => this.sendNotification())
-        schedule.scheduleJob({hour: 20, minute: 40}, () => this.rememberPeople())
+        schedule.scheduleJob({hour: 23, minute: 0}, () => this.rememberPeople())
     }
 
 
