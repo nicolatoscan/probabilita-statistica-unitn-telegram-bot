@@ -86,12 +86,12 @@ class Bot {
     private async stalker(ctx: ContextMessageUpdate) {
         let input = ctx.message.text.split(" ");
         if (input.length < 2 || !input[1] || input[1].indexOf('.') < 0) {
-            ctx.reply("Il messaggio deve essere nel formato\n/setusername nome.cognome")
+            ctx.reply("Il messaggio deve essere nel formato\n/stalker nome.cognome")
             return;
         }
 
         let msg = ctx.reply("Loading ...");
-        ctx.telegram.editMessageText(ctx.chat.id, (await msg).message_id, null, await votiManager.getVotiMsg(input[1]))
+        ctx.telegram.editMessageText(ctx.chat.id, (await msg).message_id, null, await votiManager.getVotiMsg(input[1].toLowerCase()))
 
     }
 
