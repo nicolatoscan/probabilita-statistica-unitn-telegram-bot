@@ -2,7 +2,8 @@ import * as fs from 'fs';
 
 export interface UserData {
     username: string,
-    notification: boolean;
+    notificationVoti: boolean;
+    notificationRemember: boolean;
 }
 
 class UserList {
@@ -16,7 +17,7 @@ class UserList {
 
     }
 
-    
+
     private updateFile(): void {
         fs.writeFileSync(this.fileName, JSON.stringify(this.users));
     }
@@ -33,38 +34,71 @@ class UserList {
             return null;
     }
 
-    public addUser(chatId: string, username: string) {
+    public addUser(chatId: string, username: string): void {
         if (chatId) {
             this.users[chatId] = {
                 username: username.toLowerCase(),
-                notification: false
+                notificationVoti: false,
+                notificationRemember: false,
             };
             this.updateFile();
         }
     }
 
-    public editNotification(chatId: string, status: boolean): boolean {
-        if (this.users[chatId]) {
-            if (this.users[chatId].notification !== status) {
-                this.users[chatId].notification = status;
-                this.updateFile();
-            }
-            return true;
-        } else {
-            return false;
+    public editNotificationVoti(chatId: string, status: boolean): void {
+        if (!this.users[chatId])
+            this.addUser(chatId, "")
+
+
+        if (this.users[chatId].notificationVoti !== status) {
+            this.users[chatId].notificationVoti = status;
+            this.updateFile();
         }
     }
 
-    public getUserWithNotification(): { username: string, chatId: string }[] {
+    public editNotificationRemember(chatId: string, status: boolean): void {
+        if (!this.users[chatId])
+            this.addUser(chatId, "")
+
+        if (this.users[chatId].notificationRemember !== status) {
+            this.users[chatId].notificationRemember = status;
+            this.updateFile();
+        }
+    }
+
+    public getNotificationVoti(chatId: string): boolean {
+        if (this.users[chatId])
+            return this.users[chatId].notificationVoti
+        return false
+    }
+
+    public getNotificationRemember(chatId: string): boolean {
+        if (this.users[chatId])
+            return this.users[chatId].notificationRemember
+        return false
+    }
+
+    public getUserWithNotificationVoti(): { username: string, chatId: string }[] {
         var res: { username: string, chatId: string }[] = [];
         for (let u in this.users) {
-            if (this.users[u].notification)
+            if (this.users[u].notificationVoti)
                 res.push({ username: this.users[u].username, chatId: u });
         }
-        
+
+        return res;
+    }
+
+    public getUserToRemember(): { username: string, chatId: string }[] {
+        var res: { username: string, chatId: string }[] = [];
+        for (let u in this.users) {
+            if (this.users[u].notificationRemember)
+                res.push({ username: this.users[u].username, chatId: u });
+        }
+
         return res;
     }
 }
+
 
 const userList = new UserList();
 export default userList;

@@ -10,6 +10,7 @@ class NotificationManager {
 
     constructor() {
         schedule.scheduleJob({hour: 0, minute: 1}, () => this.sendNotification())
+        schedule.scheduleJob({hour: 23, minute: 0}, () => this.rememberPeople())
     }
 
 
@@ -26,10 +27,19 @@ class NotificationManager {
         if (!this.bot)
             return;
 
-        let users = userList.getUserWithNotification();
+        let users = userList.getUserWithNotificationVoti();
         users.forEach(async (u) => {
-            console.log()
             this.bot.telegram.sendMessage(u.chatId, await votiManager.getVotiMsg(u.username, true));
+        })
+    }
+
+    private async rememberPeople() {
+        if (!this.bot)
+            return;
+
+        let users = userList.getUserToRemember();
+        users.forEach(async (u) => {
+            this.bot.telegram.sendMessage(u.chatId, "Ricordati di consegnare l'esercizio di oggi");
         })
     }
 }

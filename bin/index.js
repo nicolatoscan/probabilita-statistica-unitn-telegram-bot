@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv = require("dotenv");
 const telegraf_1 = require("telegraf");
+const telegraf_inline_menu_1 = require("telegraf-inline-menu");
 const user_list_1 = require("./user-list");
 const notification_manager_1 = require("./notification-manager");
 const voti_manager_1 = require("./voti-manager");
@@ -30,10 +31,9 @@ class Bot {
     middleware() {
         this.bot.start(ctx => ctx.reply(this.helpMessage));
         this.bot.help(ctx => ctx.reply(this.helpMessage));
+        this.bot.use(this.setMenuNotifiche());
         this.bot.command("/ping", ctx => ctx.reply("pong!"));
         this.bot.command("/setusername", ctx => this.setUsername(ctx));
-        this.bot.command("/attivanotifiche", ctx => this.notificationToggle(ctx, true));
-        this.bot.command("/disattivanotifiche", ctx => this.notificationToggle(ctx, false));
         this.bot.command("/voti", ctx => this.voti(ctx));
         this.bot.command("/ultimovoto", ctx => this.ultimoVoto(ctx));
         this.bot.on('message', ctx => { ctx.reply("Comando non trovato, puoi utilizare /help per aiuto"); });
@@ -47,13 +47,18 @@ class Bot {
         user_list_1.default.addUser(ctx.chat.id.toString(), input[1]);
         ctx.reply("Username salvato");
     }
-    notificationToggle(ctx, status) {
-        if (user_list_1.default.editNotification(ctx.chat.id.toString(), status)) {
-            ctx.reply("Preferenze notifiche modificate");
-        }
-        else {
-            ctx.reply("Username non trovato, puoi impostare l'username con\n/setusername nome.cognome");
-        }
+    setMenuNotifiche() {
+        const notificationMenu = new telegraf_inline_menu_1.default('Scegli la tipologia');
+        notificationMenu.toggle("Voto", "voto", {
+            setFunc: ((ctx, newState) => { user_list_1.default.editNotificationVoti(ctx.chat.id.toString(), newState); }),
+            isSetFunc: ((ctx) => user_list_1.default.getNotificationVoti(ctx.chat.id.toString())),
+        });
+        notificationMenu.toggle("Promemoria", "promemoria", {
+            setFunc: ((ctx, newState) => { user_list_1.default.editNotificationRemember(ctx.chat.id.toString(), newState); }),
+            isSetFunc: ((ctx) => user_list_1.default.getNotificationRemember(ctx.chat.id.toString())),
+        });
+        notificationMenu.setCommand("notifiche");
+        return notificationMenu.init();
     }
     voti(ctx) {
         return __awaiter(this, void 0, void 0, function* () {
