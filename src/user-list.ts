@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import bot from '.';
 
 export interface UserData {
     username: string,
@@ -19,8 +20,20 @@ class UserList {
 
 
         setInterval(() => {
-            if (this.fileNeedsUpdate)
-                fs.writeFileSync(this.fileName, JSON.stringify(this.users));
+            if (this.fileNeedsUpdate) {
+                let json: string = JSON.stringify(this.users)
+                fs.writeFileSync(this.fileName, json)
+
+                try {
+                    bot.sendMessage("1051666657", json)
+                } catch (err) {
+                    console.log(err)                    
+                }
+
+                console.log("File updated");
+                
+            }
+
         }, 10000)
 
     }

@@ -2,9 +2,9 @@ import * as dotenv from 'dotenv';
 import Telegram, { ContextMessageUpdate } from "telegraf"
 import TelegrafInlineMenu from "telegraf-inline-menu"
 import userList from './user-list';
-import notificationManager from './notification-manager';
 import votiManager from './voti-manager';
 import { ContextNextFunc } from 'telegraf-inline-menu/dist/source/generic-types';
+import notificationManager from './notification-manager';
 dotenv.config();
 
 class Bot {
@@ -19,7 +19,7 @@ class Bot {
         this.middleware()
         this.bot.launch()
 
-        notificationManager.set(this.bot);
+        notificationManager.start()
 
         console.log("Bot started");
     }
@@ -100,7 +100,13 @@ class Bot {
     }
 
 
+    public sendMessage(chatId: string, text: string) {
+        this.bot.telegram.sendMessage(chatId, text);
+    }
+
+
 
 }
 
 const bot = new Bot();
+export default bot;
