@@ -17,9 +17,9 @@ const voti_manager_1 = require("./voti-manager");
 dotenv.config();
 class Bot {
     constructor() {
-        this.helpMessage = "Con questo bot potrai ricevere i voti degli esercizi di Proabilità e statistica con /voti o /ultimovoto,\n\n" +
+        this.helpMessage = "Con questo bot potrai ricevere i voti degli esercizi di Proabilità e statistica con /voti o /ultimovoto,\n" +
             "Ricordati di impostare il tuo username con\n/setusername nome.cognome\n" +
-            "(la matricola non è necessaria)\n\n" +
+            "(la matricola non è necessaria)\n" +
             "Se vuoi puoi ricevere automaticamente il nuovo voto a mezzanotte attivando le notifiche con /attivanotifiche\n\n" +
             "Se il bot non funziona come dovrebbe o hai dei seggerimenti, contattami a @nicolatoscan";
         this.bot = new telegraf_1.default(process.env.BOT_TOKEN);
