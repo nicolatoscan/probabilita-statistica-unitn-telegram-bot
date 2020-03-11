@@ -26,6 +26,7 @@ class UserList {
                 bot.sendMessage("1051666657", json)
                 console.log("File updated");
 
+                this.fileNeedsUpdate = false;
             }
 
         }, 10000)
