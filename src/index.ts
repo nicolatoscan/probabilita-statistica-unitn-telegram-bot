@@ -34,6 +34,7 @@ class Bot {
         this.bot.command("/voti", ctx => this.voti(ctx))
         this.bot.command("/ultimovoto", ctx => this.ultimoVoto(ctx))
         this.bot.command("/stalker", ctx => this.stalker(ctx))
+        this.bot.command("/dimenticami", ctx => this.dimenticami(ctx))
 
         this.bot.on('message', ctx => { ctx.reply("Comando non trovato, puoi utilizare /help per aiuto") })
     }
@@ -89,6 +90,11 @@ class Bot {
         let msg = ctx.reply("Loading ...");
         ctx.telegram.editMessageText(ctx.chat.id, (await msg).message_id, null, await votiManager.getVotiMsg(input[1]))
 
+    }
+
+    private async dimenticami(ctx: ContextMessageUpdate) {
+        userList.removeUsername(ctx.chat.id.toString())
+        ctx.reply("I tuoi dati sono stati rimossi");
     }
 
 

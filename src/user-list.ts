@@ -105,6 +105,14 @@ class UserList {
 
         return res;
     }
+
+    public removeUsername(chatId: string): void {
+        if (this.users[chatId]) {
+            delete this.users[chatId]
+            this.fileToUpdate();
+        }
+
+    }
 }
 
 
