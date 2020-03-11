@@ -14,7 +14,7 @@ class Bot {
         "Ricordati di impostare il tuo username con\n/setusername nome.cognome\n" +
         "(la matricola non è necessaria)\n\n" +
         "Se vuoi puoi ricevere automaticamente il nuovo voto a mezzanotte e un promemoria di inviare l'esercizio alle 23 attivando le /notifiche\n\n" +
-        "Se il bot non funziona come dovrebbe o hai dei seggerimenti, contattami a @nicolatoscan";
+        "Se il bot non funziona come dovrebbe o hai dei suggerimenti, contattami a @nicolatoscan";
 
     constructor() {
         this.bot = new Telegram(process.env.BOT_TOKEN)
