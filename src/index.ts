@@ -13,7 +13,7 @@ class Bot {
     private helpMessage: string = "Con questo bot potrai ricevere i voti degli esercizi di Proabilità e statistica con /voti o /ultimovoto,\n\n" +
         "Ricordati di impostare il tuo username con\n/setusername nome.cognome\n" +
         "(la matricola non è necessaria)\n\n" +
-        "Se vuoi puoi ricevere automaticamente il nuovo voto a mezzanotte attivando le notifiche con /attivanotifiche\n\n" +
+        "Se vuoi puoi ricevere automaticamente il nuovo voto a mezzanotte e un promemoria di inviare l'esercizio alle 23 attivando le /notifiche\n\n" +
         "Se il bot non funziona come dovrebbe o hai dei seggerimenti, contattami a @nicolatoscan";
 
     constructor() {
