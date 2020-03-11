@@ -29,7 +29,11 @@ class NotificationManager {
 
         let users = userList.getUserWithNotificationVoti();
         users.forEach(async (u) => {
-            this.bot.telegram.sendMessage(u.chatId, await votiManager.getVotiMsg(u.username, true));
+            try {
+                this.bot.telegram.sendMessage(u.chatId, await votiManager.getVotiMsg(u.username, true));
+            } catch (error) {
+                console.log(error)
+            }
         })
     }
 
@@ -39,7 +43,11 @@ class NotificationManager {
 
         let users = userList.getUserToRemember();
         users.forEach(async (u) => {
-            this.bot.telegram.sendMessage(u.chatId, "Ricordati di consegnare l'esercizio di oggi");
+            try {
+                this.bot.telegram.sendMessage(u.chatId, "Ricordati di consegnare l'esercizio di oggi");
+            } catch (error) {
+                console.log(error)                
+            }
         })
     }
 }

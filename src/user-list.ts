@@ -10,16 +10,24 @@ class UserList {
 
     private fileName: string = "usernames.json";
     private users: { [id: string]: UserData; } = {}
+    private fileNeedsUpdate = false;
+
 
     constructor() {
         if (fs.existsSync(this.fileName))
             this.readFile();
 
+
+        setInterval(() => {
+            if (this.fileNeedsUpdate)
+                fs.writeFileSync(this.fileName, JSON.stringify(this.users));
+        }, 10000)
+
     }
 
 
-    private updateFile(): void {
-        fs.writeFileSync(this.fileName, JSON.stringify(this.users));
+    private fileToUpdate(): void {
+        this.fileNeedsUpdate = true;
     }
 
     private readFile(): void {
@@ -41,7 +49,7 @@ class UserList {
                 notificationVoti: false,
                 notificationRemember: false,
             };
-            this.updateFile();
+            this.fileToUpdate();
         }
     }
 
@@ -52,7 +60,7 @@ class UserList {
 
         if (this.users[chatId].notificationVoti !== status) {
             this.users[chatId].notificationVoti = status;
-            this.updateFile();
+            this.fileToUpdate();
         }
     }
 
@@ -62,7 +70,7 @@ class UserList {
 
         if (this.users[chatId].notificationRemember !== status) {
             this.users[chatId].notificationRemember = status;
-            this.updateFile();
+            this.fileToUpdate();
         }
     }
 
