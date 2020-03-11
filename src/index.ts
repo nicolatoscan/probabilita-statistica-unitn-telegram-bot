@@ -12,7 +12,7 @@ class Bot {
         "Ricordati di impostare il tuo username con\n/setusername nome.cognome\n" +
         "(la matricola non è necessaria)\n\n" +
         "Se vuoi puoi ricevere automaticamente il nuovo voto a mezzanotte attivando le notifiche con /attivanotifiche\n\n" + 
-        "Se il bot non funziona come dovrebbe o hai dei seggerimenti, contattami a @nicolatoscan"
+        "Se il bot non funziona come dovrebbe o hai dei seggerimenti, contattami a @nicolatoscan";
 
     constructor() {
         this.bot = new Telegram(process.env.BOT_TOKEN)
@@ -59,12 +59,14 @@ class Bot {
 
     private async voti(ctx: ContextMessageUpdate) {
         let username = userList.getUserByChatId(ctx.chat.id.toString());
-        ctx.reply(await votiManager.getVotiMsg(username));
+        let msg = ctx.reply("Loading ...");
+        ctx.telegram.editMessageText(ctx.chat.id, (await msg).message_id, null, await votiManager.getVotiMsg(username))
     }
 
     private async ultimoVoto(ctx: ContextMessageUpdate) {
         let username = userList.getUserByChatId(ctx.chat.id.toString());
-        ctx.reply(await votiManager.getVotiMsg(username, true));
+        let msg = ctx.reply("Loading ...");
+        ctx.telegram.editMessageText(ctx.chat.id, (await msg).message_id, null, await votiManager.getVotiMsg(username, true))
     }
 
 }

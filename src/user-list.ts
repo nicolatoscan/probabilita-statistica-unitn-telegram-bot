@@ -27,7 +27,10 @@ class UserList {
 
 
     public getUserByChatId(chatId: string): string {
-        return this.users[chatId].username;
+        if (this.users[chatId])
+            return this.users[chatId].username;
+        else
+            return null;
     }
 
     public addUser(chatId: string, username: string) {

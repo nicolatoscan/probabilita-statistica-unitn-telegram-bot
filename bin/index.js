@@ -58,13 +58,15 @@ class Bot {
     voti(ctx) {
         return __awaiter(this, void 0, void 0, function* () {
             let username = user_list_1.default.getUserByChatId(ctx.chat.id.toString());
-            ctx.reply(yield voti_manager_1.default.getVotiMsg(username));
+            let msg = ctx.reply("Loading ...");
+            ctx.telegram.editMessageText(ctx.chat.id, (yield msg).message_id, null, yield voti_manager_1.default.getVotiMsg(username));
         });
     }
     ultimoVoto(ctx) {
         return __awaiter(this, void 0, void 0, function* () {
             let username = user_list_1.default.getUserByChatId(ctx.chat.id.toString());
-            ctx.reply(yield voti_manager_1.default.getVotiMsg(username, true));
+            let msg = ctx.reply("Loading ...");
+            ctx.telegram.editMessageText(ctx.chat.id, (yield msg).message_id, null, yield voti_manager_1.default.getVotiMsg(username, true));
         });
     }
 }
