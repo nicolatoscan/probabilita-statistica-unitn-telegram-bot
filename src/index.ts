@@ -20,6 +20,8 @@ class Bot {
         this.bot.launch()
 
         notificationManager.set(this.bot);
+
+        console.log("Bot started");
     }
 
     private middleware(): void {
