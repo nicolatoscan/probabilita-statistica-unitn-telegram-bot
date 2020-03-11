@@ -101,7 +101,11 @@ class Bot {
 
 
     public sendMessage(chatId: string, text: string) {
-        this.bot.telegram.sendMessage(chatId, text);
+        try {
+            this.bot.telegram.sendMessage(chatId, text);
+        } catch (err) {
+            console.log(err);            
+        }
     }
 
 
