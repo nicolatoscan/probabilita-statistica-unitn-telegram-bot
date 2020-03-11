@@ -54,7 +54,7 @@ class VotiManager {
 
         let voti: Voto[] = [];
 
-        for (let i = 1; i < lines.length; i += 2) {
+        for (let i = 2; i < lines.length; i += 3) {
             voti.push({
                 date: lines[i - 1],
                 value: parseFloat(lines[i])
