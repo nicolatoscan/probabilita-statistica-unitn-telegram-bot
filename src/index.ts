@@ -1,11 +1,9 @@
 import * as dotenv from 'dotenv';
-dotenv.config();
-
 import Telegram, { ContextMessageUpdate } from "telegraf"
 import userList from './user-list';
 import notificationManager from './notification-manager';
-import votiManager, { Voto } from './voti-manager';
-
+import votiManager from './voti-manager';
+dotenv.config();
 
 class Bot {
     private bot: Telegram<ContextMessageUpdate>;
@@ -34,6 +32,8 @@ class Bot {
 
         this.bot.command("/voti", ctx => this.voti(ctx))
         this.bot.command("/ultimovoto", ctx => this.ultimoVoto(ctx))
+
+        this.bot.on('message', ctx => { ctx.reply("Comando non trovato, puoi utilizare /help per aiuto")})
     }
 
 
@@ -60,7 +60,6 @@ class Bot {
         let username = userList.getUserByChatId(ctx.chat.id.toString());
         ctx.reply(await votiManager.getVotiMsg(username));
     }
-
 
     private async ultimoVoto(ctx: ContextMessageUpdate) {
         let username = userList.getUserByChatId(ctx.chat.id.toString());

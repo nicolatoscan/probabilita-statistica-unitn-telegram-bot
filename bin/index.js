@@ -10,11 +10,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv = require("dotenv");
-dotenv.config();
 const telegraf_1 = require("telegraf");
 const user_list_1 = require("./user-list");
 const notification_manager_1 = require("./notification-manager");
 const voti_manager_1 = require("./voti-manager");
+dotenv.config();
 class Bot {
     constructor() {
         this.helpMessage = "Con questo bot potrai ricevere i voti degli esercizi di Proabilità e statistica con /voti o /ultimovoto,\n" +
@@ -35,6 +35,7 @@ class Bot {
         this.bot.command("/disattivanotifiche", ctx => this.notificationToggle(ctx, false));
         this.bot.command("/voti", ctx => this.voti(ctx));
         this.bot.command("/ultimovoto", ctx => this.ultimoVoto(ctx));
+        this.bot.on('message', ctx => { ctx.reply("Comando non trovato, puoi utilizare /help per aiuto"); });
     }
     setUsername(ctx) {
         let input = ctx.message.text.split(" ");

@@ -16,6 +16,7 @@ class UserList {
 
     }
 
+    
     private updateFile(): void {
         fs.writeFileSync(this.fileName, JSON.stringify(this.users));
     }

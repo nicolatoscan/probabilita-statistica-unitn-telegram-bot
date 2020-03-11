@@ -2,7 +2,6 @@ import axios from 'axios'
 
 
 export interface Voto {
-    index: number,
     date: string,
     value: number
 }
@@ -41,21 +40,17 @@ class VotiManager {
         
         start += 8;
         html = html.substring(start, end);
+
         let lines = html.split('\n').filter(s =>
             s &&
-            s != '<tr>' &&
-            s != '</tr>' &&
-            s != '<td>' &&
-            s != '</td>' &&
-            s != '<td style="text-align:left;">' &&
-            s != '<td style="text-align:right;">'
+            s.indexOf('tr') < 0 &&
+            s.indexOf('td') < 0
             );
 
         let voti: Voto[] = [];
 
-        for (let i = 2; i < lines.length; i += 3) {
+        for (let i = 1; i < lines.length; i += 2) {
             voti.push({
-                index: parseInt(lines[i - 2]),
                 date: lines[i - 1],
                 value: parseFloat(lines[i])
             })
@@ -69,7 +64,7 @@ class VotiManager {
     }
 
     public async getVotiMsg(username: string, onlyLast: boolean = false): Promise<string> {
-        if (username == null)
+        if (!username)
             return "Username non trovato, puoi impostare l'username con\n/setusername nome.cognome";
 
         let voti = await this.getVoti(username);
@@ -80,7 +75,8 @@ class VotiManager {
 
         let res = `Voti di: ${username}\n\nMedia: ${voti.avg}\n`;
         if (onlyLast) {
-            res += `${voti.voti[0].date}: ${voti.voti[0].value}`
+            if (voti.voti.length > 0)
+                res += `${voti.voti[0].date}: ${voti.voti[0].value}`
         } else {
             res += voti.voti.map(v => `${v.date}: ${v.value}`).join("\n")
         }
