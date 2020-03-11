@@ -10,11 +10,9 @@ dotenv.config();
 class Bot {
     private bot: Telegram<ContextMessageUpdate>;
 
-    private helpMessage: string = "Con questo bot potrai ricevere i voti degli esercizi di Proabilità e statistica con /voti o /ultimovoto,\n\n" +
-        "Ricordati di impostare il tuo username con\n/setusername nome.cognome\n" +
-        "(la matricola non è necessaria)\n\n" +
-        "Se vuoi puoi ricevere automaticamente il nuovo voto a mezzanotte e un promemoria di inviare l'esercizio alle 23 attivando le /notifiche\n\n" +
-        "Se il bot non funziona come dovrebbe o hai dei suggerimenti, contattami a @nicolatoscan";
+    private helpMessage: string = "Imposta il tuo username con /setusername nome.cognome e potrai vedere i tuoi voti con /voti o /ultimovoto\n\n" +
+        "Puoi ricevere automaticamente il voto a mezzanotte o un promemoria alle 23 attivando le /notifiche\n\n" +
+        "Se il bot non funziona come dovrebbe o hai dei suggerimenti, contattami a @nicolatoscan"
 
     constructor() {
         this.bot = new Telegram(process.env.BOT_TOKEN)
@@ -35,6 +33,7 @@ class Bot {
         this.bot.command("/setusername", ctx => this.setUsername(ctx))
         this.bot.command("/voti", ctx => this.voti(ctx))
         this.bot.command("/ultimovoto", ctx => this.ultimoVoto(ctx))
+        this.bot.command("/stalker", ctx => this.stalker(ctx))
 
         this.bot.on('message', ctx => { ctx.reply("Comando non trovato, puoi utilizare /help per aiuto") })
     }
@@ -78,6 +77,18 @@ class Bot {
         let username = userList.getUserByChatId(ctx.chat.id.toString());
         let msg = ctx.reply("Loading ...");
         ctx.telegram.editMessageText(ctx.chat.id, (await msg).message_id, null, await votiManager.getVotiMsg(username, true))
+    }
+
+    private async stalker(ctx: ContextMessageUpdate) {
+        let input = ctx.message.text.split(" ");
+        if (input.length < 2 || !input[1] || input[1].indexOf('.') < 0) {
+            ctx.reply("Il messaggio deve essere nel formato\n/setusername nome.cognome")
+            return;
+        }
+
+        let msg = ctx.reply("Loading ...");
+        ctx.telegram.editMessageText(ctx.chat.id, (await msg).message_id, null, await votiManager.getVotiMsg(input[1]))
+
     }
 
 
