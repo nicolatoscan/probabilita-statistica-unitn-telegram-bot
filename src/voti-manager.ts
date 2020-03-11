@@ -8,10 +8,15 @@ export interface Voto {
 
 class VotiManager {
 
+    private cache: { [id: string]: {
+        date: Date
+        value: { voti: Voto[], avg: number }
+    }} = {}
+
     constructor() {
     }
 
-    public async getVoti(username: string): Promise<{ voti: Voto[], avg: number }> {
+    private async getVotiFromWeb(username: string): Promise<{ voti: Voto[], avg: number }> {
 
         console.log("Voti di " + username)
 
@@ -37,7 +42,7 @@ class VotiManager {
         end = html.indexOf("</tbody>", start);
         if (start < 0 || end < 0)
             return null;
-        
+
         start += 8;
         html = html.substring(start, end);
 
@@ -45,7 +50,7 @@ class VotiManager {
             s &&
             s.indexOf('tr') < 0 &&
             s.indexOf('td') < 0
-            );
+        );
 
         let voti: Voto[] = [];
 
@@ -55,12 +60,33 @@ class VotiManager {
                 value: parseFloat(lines[i])
             })
         }
-        
+
         return {
             voti: voti,
             avg: voti.map(v => v.value).reduce((a, b) => a + b) / voti.length
         };
 
+    }
+
+    public async getVoti(username: string): Promise<{ voti: Voto[], avg: number }> {
+        if (this.cache[username] &&
+            this.cache[username].date.getDate() == new Date().getDate() &&
+            this.cache[username].date.getMonth() == new Date().getMonth() &&
+            this.cache[username].date.getFullYear() == new Date().getFullYear()
+            ) {
+
+                console.log("Cached")
+                return this.cache[username].value;
+        } else {
+            
+            let newValue = await this.getVotiFromWeb(username);
+            this.cache[username] = {
+                date: new Date(),
+                value: newValue
+            }
+            
+            return newValue
+        }
     }
 
     public async getVotiMsg(username: string, onlyLast: boolean = false): Promise<string> {
@@ -83,6 +109,10 @@ class VotiManager {
 
         return res;
 
+    }
+
+    public async cleanCache() {
+        this.cache = { }
     }
 
 }

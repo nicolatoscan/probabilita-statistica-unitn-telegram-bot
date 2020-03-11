@@ -30,14 +30,15 @@ class Bot {
 
         this.bot.use(this.setMenuNotifiche())
 
-        this.bot.command("/ping", ctx => ctx.reply("pong!"))
-
         this.bot.command("/setusername", ctx => this.setUsername(ctx))
         this.bot.command("/voti", ctx => this.voti(ctx))
         this.bot.command("/ultimovoto", ctx => this.ultimoVoto(ctx))
         this.bot.command("/stalker", ctx => this.stalker(ctx))
         this.bot.command("/dimenticami", ctx => this.dimenticami(ctx))
-
+        
+        this.bot.command("/ping", ctx => ctx.reply("pong!"))
+        this.bot.command("/cleancache", () => votiManager.cleanCache())
+        
         this.bot.on('message', ctx => { ctx.reply("Comando non trovato, puoi utilizare /help per aiuto") })
     }
 
