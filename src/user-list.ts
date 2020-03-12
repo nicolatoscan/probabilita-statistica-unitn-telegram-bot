@@ -23,7 +23,7 @@ class UserList {
             if (this.fileNeedsUpdate) {
                 let json: string = JSON.stringify(this.users)
                 fs.writeFileSync(this.fileName, json)
-                //bot.sendMessage("1051666657", json)
+                bot.sendFile("1051666657", this.fileName)
                 console.log("File updated");
 
                 this.fileNeedsUpdate = false;

@@ -120,6 +120,17 @@ class Bot {
     }
 
 
+    public async sendFile(chatId: string, fileName: string) {
+        try {
+            this.bot.telegram.sendDocument(chatId, {
+                source: fileName
+            })
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
+
 
 }
 
