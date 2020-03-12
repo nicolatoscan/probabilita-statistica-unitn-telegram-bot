@@ -61,9 +61,11 @@ class VotiManager {
             })
         }
 
+        console.log(voti)
+
         return {
             voti: voti,
-            avg: voti.map(v => v.value).reduce((a, b) => a + b) / voti.length
+            avg: voti.length == 0 ? 0 : voti.map(v => v.value).reduce((a, b) => a + b) / voti.length
         };
 
     }
