@@ -10,8 +10,8 @@ class NotificationManager {
     }
 
     public start() {
-        schedule.scheduleJob({ hour: 0, minute: 1 }, () => this.sendNotification())
-        schedule.scheduleJob({ hour: 23, minute: 0 }, () => this.rememberPeople())
+        schedule.scheduleJob('1 0 * * 3-7', () => this.sendNotification())
+        schedule.scheduleJob('0 23 * * 2-6', () => this.rememberPeople())
     }
 
 
