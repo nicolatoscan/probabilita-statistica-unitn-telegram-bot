@@ -61,8 +61,6 @@ class VotiManager {
             })
         }
 
-        console.log(voti)
-
         return {
             voti: voti,
             avg: voti.length == 0 ? 0 : voti.map(v => v.value).reduce((a, b) => a + b) / voti.length
@@ -81,12 +79,19 @@ class VotiManager {
                 return this.cache[username].value;
         } else {
             
-            let newValue = await this.getVotiFromWeb(username);
-            this.cache[username] = {
-                date: new Date(),
-                value: newValue
+            let newValue = null
+            try {
+                newValue = await this.getVotiFromWeb(username);
+            } catch (error) {
+                console.log("Error getting voti")                
             }
-            
+            if (newValue) {
+                this.cache[username] = {
+                    date: new Date(),
+                    value: newValue
+                }
+            }
+                
             return newValue
         }
     }
