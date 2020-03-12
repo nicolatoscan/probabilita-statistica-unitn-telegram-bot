@@ -35,10 +35,10 @@ class Bot {
         this.bot.command("/ultimovoto", ctx => this.ultimoVoto(ctx))
         this.bot.command("/stalker", ctx => this.stalker(ctx))
         this.bot.command("/dimenticami", ctx => this.dimenticami(ctx))
-        
+
         this.bot.command("/ping", ctx => ctx.reply("pong!"))
         this.bot.command("/cleancache", () => votiManager.cleanCache())
-        
+
         this.bot.on('message', ctx => { ctx.reply("Comando non trovato, puoi utilizare /help per aiuto") })
     }
 
@@ -46,12 +46,18 @@ class Bot {
     private setUsername(ctx: ContextMessageUpdate): void {
         let input = ctx.message.text.split(" ");
         if (input.length < 2 || input[1].indexOf('.') < 0) {
-            ctx.reply("Il messaggio deve essere nel formato\n/setusername nome.cognome")
+            try {
+                ctx.reply("Il messaggio deve essere nel formato\n/setusername nome.cognome")
+            } catch (error) { }
             return;
         }
 
         userList.addUser(ctx.chat.id.toString(), input[1]);
-        ctx.reply("Username salvato")
+        try {
+            ctx.reply("Username salvato")
+        } catch (error) { }
+
+
     }
 
     private setMenuNotifiche(): ContextNextFunc {
@@ -73,31 +79,45 @@ class Bot {
 
     private async voti(ctx: ContextMessageUpdate) {
         let username = userList.getUserByChatId(ctx.chat.id.toString());
-        let msg = ctx.reply("Loading ...");
-        ctx.telegram.editMessageText(ctx.chat.id, (await msg).message_id, null, await votiManager.getVotiMsg(username))
+        try {
+            let msg = ctx.reply("Loading ...");
+            ctx.telegram.editMessageText(ctx.chat.id, (await msg).message_id, null, await votiManager.getVotiMsg(username))
+        } catch (error) {
+        }
     }
 
     private async ultimoVoto(ctx: ContextMessageUpdate) {
         let username = userList.getUserByChatId(ctx.chat.id.toString());
-        let msg = ctx.reply("Loading ...");
-        ctx.telegram.editMessageText(ctx.chat.id, (await msg).message_id, null, await votiManager.getVotiMsg(username, true))
+        try {
+            let msg = ctx.reply("Loading ...");
+            ctx.telegram.editMessageText(ctx.chat.id, (await msg).message_id, null, await votiManager.getVotiMsg(username, true))
+        } catch (error) {
+        }
     }
 
     private async stalker(ctx: ContextMessageUpdate) {
         let input = ctx.message.text.split(" ");
         if (input.length < 2 || !input[1] || input[1].indexOf('.') < 0) {
-            ctx.reply("Il messaggio deve essere nel formato\n/stalker nome.cognome")
+            try {
+                ctx.reply("Il messaggio deve essere nel formato\n/stalker nome.cognome")
+            } catch (error) {
+            }
             return;
         }
 
-        let msg = ctx.reply("Loading ...");
-        ctx.telegram.editMessageText(ctx.chat.id, (await msg).message_id, null, await votiManager.getVotiMsg(input[1].toLowerCase()))
-
+        try {
+            let msg = ctx.reply("Loading ...");
+            ctx.telegram.editMessageText(ctx.chat.id, (await msg).message_id, null, await votiManager.getVotiMsg(input[1].toLowerCase()))
+        } catch (error) {
+        }
     }
 
     private async dimenticami(ctx: ContextMessageUpdate) {
         userList.removeUsername(ctx.chat.id.toString())
-        ctx.reply("I tuoi dati sono stati rimossi");
+        try {
+            ctx.reply("I tuoi dati sono stati rimossi");
+        } catch (error) {
+        }
     }
 
 
@@ -105,7 +125,7 @@ class Bot {
         try {
             this.bot.telegram.sendMessage(chatId, text);
         } catch (err) {
-            console.log(err);            
+            console.log(err);
         }
     }
 
