@@ -21,10 +21,13 @@ class NotificationManager {
 
 
     private async sendNotification() {
+        console.log(" -- Notifiche Iniziate")
         let users = userList.getUserWithNotificationVoti();
-        users.forEach(async (u) => {
-            bot.sendMessage(u.chatId, await votiManager.getVotiMsg(u.username, true))
-        })
+        for (let index = 0; index < users.length; index++) {
+            const u = users[index];
+            await bot.sendMessage(u.chatId, await votiManager.getVotiMsg(u.username, true))
+        }
+        console.log(" -- Notifiche Finite")
     }
 
     private async rememberPeople() {
