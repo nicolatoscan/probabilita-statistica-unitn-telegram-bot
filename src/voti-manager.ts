@@ -106,7 +106,7 @@ class VotiManager {
             return "Impossibile trovare i voti";
         }
 
-        let res = `Voti di: ${username}\n\nMedia: ${voti.avg}\n`;
+        let res = `Voti di: ${username}\n\nMedia: ${voti.avg?.toString()?.substring(0, 5)}\n`;
         if (onlyLast) {
             if (voti.voti.length > 0)
                 res += `${voti.voti[0].date}: ${voti.voti[0].value}`
