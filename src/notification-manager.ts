@@ -10,7 +10,7 @@ class NotificationManager {
     }
 
     public start() {
-        schedule.scheduleJob('1 0 * * 3-7', () => this.sendNotification())
+        schedule.scheduleJob('3 0 * * 3-6,0', () => this.sendNotification())
         schedule.scheduleJob('0 23 * * 2-6', () => this.rememberPeople())
     }
 
