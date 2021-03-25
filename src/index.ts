@@ -35,7 +35,7 @@ class Bot {
         this.bot.command("/setusername", ctx => this.setUsername(ctx, ctx.message.text))
         this.bot.command("/voti", ctx => this.voti(ctx))
         this.bot.command("/ultimovoto", ctx => this.voti(ctx, true))
-        this.bot.command("/stalker", ctx => this.stalker(ctx, ctx.message.text))
+        // this.bot.command("/stalker", ctx => this.stalker(ctx, ctx.message.text))
         this.bot.command("/dimenticami", ctx => this.forgetMe(ctx))
 
         this.bot.command("/ping", ctx => this.sendReply(ctx, "pong"))
