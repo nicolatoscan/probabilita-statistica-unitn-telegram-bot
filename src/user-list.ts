@@ -43,11 +43,11 @@ class UserList {
     }
 
 
-    public getUserByChatId(chatId: string): string {
-        if (this.users[chatId])
+    public getUserByChatId(chatId: string | undefined): string | undefined {
+        if (chatId && this.users[chatId])
             return this.users[chatId].username;
         else
-            return null;
+            return undefined;
     }
 
     public addUser(chatId: string, username: string): void {
@@ -61,7 +61,11 @@ class UserList {
         }
     }
 
-    public editNotificationVoti(chatId: string, status: boolean): void {
+    public editNotificationVoti(chatId: string | undefined, status: boolean): void {
+        if (!chatId) {
+            return
+        }
+
         if (!this.users[chatId])
             this.addUser(chatId, "")
 
@@ -72,7 +76,11 @@ class UserList {
         }
     }
 
-    public editNotificationRemember(chatId: string, status: boolean): void {
+    public editNotificationRemember(chatId: string | undefined, status: boolean): void {
+        if (!chatId) {
+            return
+        }
+
         if (!this.users[chatId])
             this.addUser(chatId, "")
 
@@ -82,20 +90,24 @@ class UserList {
         }
     }
 
-    public getNotificationVoti(chatId: string): boolean {
+    public getNotificationVoti(chatId: string | undefined): boolean {
+        if (!chatId) {
+            return false;
+        }
+
         if (this.users[chatId])
-            return this.users[chatId].notificationVoti
-        return false
+            return this.users[chatId].notificationVoti;
+        return false;
     }
 
-    public getNotificationRemember(chatId: string): boolean {
-        if (this.users[chatId])
-            return this.users[chatId].notificationRemember
-        return false
+    public getNotificationRemember(chatId: string | undefined): boolean {
+        if (chatId && this.users[chatId])
+            return this.users[chatId].notificationRemember;
+        return false;
     }
 
     public getUserWithNotificationVoti(): { username: string, chatId: string }[] {
-        var res: { username: string, chatId: string }[] = [];
+        const res: { username: string, chatId: string }[] = [];
         for (let u in this.users) {
             if (this.users[u].notificationVoti)
                 res.push({ username: this.users[u].username, chatId: u });
@@ -105,7 +117,7 @@ class UserList {
     }
 
     public getUserToRemember(): { username: string, chatId: string }[] {
-        var res: { username: string, chatId: string }[] = [];
+        const res: { username: string, chatId: string }[] = [];
         for (let u in this.users) {
             if (this.users[u].notificationRemember)
                 res.push({ username: this.users[u].username, chatId: u });
@@ -114,7 +126,11 @@ class UserList {
         return res;
     }
 
-    public removeUsername(chatId: string): void {
+    public removeUsername(chatId: string | undefined): void {
+        if (!chatId) {
+            return;
+        }
+
         if (this.users[chatId]) {
             delete this.users[chatId]
             this.fileToUpdate();

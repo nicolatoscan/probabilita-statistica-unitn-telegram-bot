@@ -16,11 +16,11 @@ class VotiManager {
     constructor() {
     }
 
-    private async getVotiFromWeb(username: string): Promise<{ voti: Voto[], avg: number }> {
+    private async getVotiFromWeb(username: string): Promise<{ voti: Voto[], avg: number } | undefined> {
 
         console.log("Voti di " + username)
 
-        let xocpu = (await axios.post(
+        const xocpu = (await axios.post(
             'http://datascience.maths.unitn.it/ocpu/library/doexercises/R/renderResults',
             { input_user: username }
         )).headers['x-ocpu-session'];
@@ -28,31 +28,31 @@ class VotiManager {
         let html: string = (await axios.get(`http://datascience.maths.unitn.it/ocpu/tmp/${xocpu}/files/output.html`)).data
 
         if (html.indexOf("Impossibile trovare i risultati") >= 0)
-            return null;
+            return undefined;
 
         let start = html.indexOf('<table class="table" id="results_table">')
         let end = html.indexOf('</table>', start)
 
         if (start < 0 || end < 0)
-            return null;
+            return undefined;
 
 
         html = html.substring(start, end);
         start = html.indexOf('<tbody>');
         end = html.indexOf("</tbody>", start);
         if (start < 0 || end < 0)
-            return null;
+            return undefined;
 
         start += 8;
         html = html.substring(start, end);
 
-        let lines = html.split('\n').filter(s =>
+        const lines = html.split('\n').filter(s =>
             s &&
             s.indexOf('tr') < 0 &&
             s.indexOf('td') < 0
         );
 
-        let voti: Voto[] = [];
+        const voti: Voto[] = [];
 
         for (let i = 2; i < lines.length; i += 3) {
             voti.push({
@@ -68,7 +68,7 @@ class VotiManager {
 
     }
 
-    public async getVoti(username: string): Promise<{ voti: Voto[], avg: number }> {
+    public async getVoti(username: string): Promise<{ voti: Voto[], avg: number } | undefined> {
         if (this.cache[username] &&
             this.cache[username].date.getDate() == new Date().getDate() &&
             this.cache[username].date.getMonth() == new Date().getMonth() &&
@@ -79,7 +79,7 @@ class VotiManager {
                 return this.cache[username].value;
         } else {
             
-            let newValue = null
+            let newValue = undefined
             try {
                 newValue = await this.getVotiFromWeb(username);
             } catch (error) {
@@ -100,7 +100,7 @@ class VotiManager {
         if (!username)
             return "Username non trovato, puoi impostare l'username con\n/setusername nome.cognome";
 
-        let voti = await this.getVoti(username);
+        const voti = await this.getVoti(username);
 
         if (!voti) {
             return "Impossibile trovare i voti";

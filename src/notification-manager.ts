@@ -22,7 +22,7 @@ class NotificationManager {
 
     private async sendNotification() {
         console.log(" -- Notifiche Iniziate")
-        let users = userList.getUserWithNotificationVoti();
+        const users = userList.getUserWithNotificationVoti();
         for (let index = 0; index < users.length; index++) {
             const u = users[index];
             await bot.sendMessage(u.chatId, await votiManager.getVotiMsg(u.username, true))
@@ -31,7 +31,7 @@ class NotificationManager {
     }
 
     private async rememberPeople() {
-        let users = userList.getUserToRemember();
+        const users = userList.getUserToRemember();
         users.forEach(async (u) => {
             bot.sendMessage(u.chatId, "Ricordati di consegnare l'esercizio di oggi");
         })

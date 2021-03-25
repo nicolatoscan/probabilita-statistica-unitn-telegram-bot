@@ -1,26 +1,26 @@
 import * as dotenv from 'dotenv';
-import Telegram, { ContextMessageUpdate } from "telegraf"
+import { Telegraf, Context } from "telegraf"
+import { Message } from 'telegraf/typings/telegram-types';
 import TelegrafInlineMenu from "telegraf-inline-menu"
+import { ContextNextFunc } from 'telegraf-inline-menu/dist/source/generic-types';
 import userList from './user-list';
 import votiManager from './voti-manager';
-import { ContextNextFunc } from 'telegraf-inline-menu/dist/source/generic-types';
 import notificationManager from './notification-manager';
-import { Message } from 'telegraf/typings/telegram-types';
 dotenv.config();
 
 class Bot {
-    private bot: Telegram<ContextMessageUpdate>;
+    private bot: Telegraf<Context>;
 
     private helpMessage: string = "Imposta il tuo username con /setusername nome.cognome e potrai vedere i tuoi voti con /voti o /ultimovoto\n\n" +
         "Puoi ricevere automaticamente il voto a mezzanotte o un promemoria alle 23 attivando le /notifiche\n\n" +
         "Se il bot non funziona come dovrebbe o hai dei suggerimenti, contattami a @nicolatoscan"
 
     constructor() {
-        this.bot = new Telegram(process.env.BOT_TOKEN)
+        this.bot = new Telegraf(process.env.BOT_TOKEN ?? "")
         this.middleware()
         this.bot.launch()
 
-        // notificationManager.start()
+        notificationManager.start()
 
         console.log("Bot started");
     }
@@ -37,60 +37,69 @@ class Bot {
         this.bot.command("/stalker", ctx => this.stalker(ctx))
         this.bot.command("/dimenticami", ctx => this.dimenticami(ctx))
 
-        this.bot.command("/ping", ctx => this.sendReply(ctx, "pong!"))
+        this.bot.command("/ping", ctx => this.sendReply(ctx, "pong"))
         this.bot.command("/cleancache", () => votiManager.cleanCache())
 
         this.bot.on('message', ctx => { this.sendReply(ctx, "Comando non trovato, puoi utilizare /help per aiuto") })
     }
 
 
-    private setUsername(ctx: ContextMessageUpdate): void {
-        let input = ctx.message.text.split(" ");
-        if (input.length < 2 || input[1].indexOf('.') < 0) {
+    private setUsername(ctx: Context): void {
+        const input = ctx.message?.text?.split(" ");
+        if (!input || input.length < 2 || input[1].indexOf('.') < 0) {
             this.sendReply(ctx, "Il messaggio deve essere nel formato\n/setusername nome.cognome")
             return;
         }
 
-        userList.addUser(ctx.chat.id.toString(), input[1]);
-        this.sendReply(ctx, "Username salvato")
+        if (ctx.chat) {
+            userList.addUser(ctx.chat.id.toString(), input[1]);
+            this.sendReply(ctx, "Username salvato")
+        }
     }
 
     private setMenuNotifiche(): ContextNextFunc {
 
         const notificationMenu = new TelegrafInlineMenu('Scegli la tipologia');
         notificationMenu.toggle("Voto", "voto", {
-            setFunc: ((ctx, newState) => { userList.editNotificationVoti(ctx.chat.id.toString(), newState) }),
-            isSetFunc: ((ctx) => userList.getNotificationVoti(ctx.chat.id.toString())),
+            setFunc: ((ctx, newState) => { userList.editNotificationVoti(ctx.chat?.id.toString(), newState) }),
+            isSetFunc: ((ctx) => userList.getNotificationVoti(ctx.chat?.id.toString())),
         })
 
         notificationMenu.toggle("Promemoria", "promemoria", {
-            setFunc: ((ctx, newState) => { userList.editNotificationRemember(ctx.chat.id.toString(), newState) }),
-            isSetFunc: ((ctx) => userList.getNotificationRemember(ctx.chat.id.toString())),
+            setFunc: ((ctx, newState) => { userList.editNotificationRemember(ctx.chat?.id?.toString(), newState) }),
+            isSetFunc: ((ctx) => userList.getNotificationRemember(ctx.chat?.id?.toString())),
         })
 
         notificationMenu.setCommand("notifiche")
         return notificationMenu.init();
     }
 
-    private async voti(ctx: ContextMessageUpdate, onlyLast: boolean = false) {
-        let username = userList.getUserByChatId(ctx.chat.id.toString());
-        let msg = this.sendReply(ctx, "Loading ...")
-        this.editMessage(ctx, await msg, await votiManager.getVotiMsg(username, onlyLast))
+    private async voti(ctx: Context, onlyLast: boolean = false) {
+        const username = userList.getUserByChatId(ctx.chat?.id.toString());
+        if (!username) {
+            return
+        }
+        let msg = await this.sendReply(ctx, "Loading ...")
+        if (msg) {
+            this.editMessage(ctx, msg, await votiManager.getVotiMsg(username, onlyLast))
+        }
     }
 
-    private async stalker(ctx: ContextMessageUpdate) {
-        let input = ctx.message.text.split(" ");
-        if (input.length < 2 || !input[1] || input[1].indexOf('.') < 0) {
+    private async stalker(ctx: Context) {
+        const input = ctx.message?.text?.split(" ");
+        if (!input || input.length < 2 || !input[1] || input[1].indexOf('.') < 0) {
             this.sendReply(ctx, "Il messaggio deve essere nel formato\n/stalker nome.cognome")
             return;
         }
 
-        let msg = this.sendReply(ctx, "Loading ...")
-        this.editMessage(ctx, await msg, await votiManager.getVotiMsg(input[1].toLowerCase()))
+        const msg = await this.sendReply(ctx, "Loading ...")
+        if (msg) {
+            this.editMessage(ctx, msg, await votiManager.getVotiMsg(input[1].toLowerCase()))
+        }
     }
 
-    private async dimenticami(ctx: ContextMessageUpdate) {
-        userList.removeUsername(ctx.chat.id.toString())
+    private async dimenticami(ctx: Context) {
+        userList.removeUsername(ctx.chat?.id.toString())
         this.sendReply(ctx, "I tuoi dati sono stati rimossi")
     }
 
@@ -103,7 +112,7 @@ class Bot {
         }
     }
 
-    private async sendReply(ctx: ContextMessageUpdate, text: string): Promise<Message> {
+    private async sendReply(ctx: Context, text: string): Promise<Message | undefined> {
         try {
             return await ctx.reply(text)
         } catch (err) {
@@ -111,9 +120,9 @@ class Bot {
         }
     }
 
-    private editMessage(ctx: ContextMessageUpdate, msg: Message, text: string) {
+    private editMessage(ctx: Context, msg: Message, text: string) {
         try {
-            ctx.telegram.editMessageText(ctx.chat.id, msg.message_id, null, text)
+            ctx.telegram.editMessageText(ctx.chat?.id, msg.message_id, undefined, text)
         } catch (err) {
             console.log("Error editing Message")
         }
