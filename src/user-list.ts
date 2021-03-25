@@ -62,6 +62,7 @@ class UserList {
     }
 
     public editNotificationVoti(chatId: string | undefined, status: boolean): void {
+        
         if (!chatId) {
             return
         }

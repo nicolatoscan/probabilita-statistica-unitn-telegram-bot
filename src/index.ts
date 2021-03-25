@@ -1,11 +1,10 @@
 import * as dotenv from 'dotenv';
 import { Telegraf, Context } from "telegraf"
-import { Message } from 'telegraf/typings/telegram-types';
-import TelegrafInlineMenu from "telegraf-inline-menu"
-import { ContextNextFunc } from 'telegraf-inline-menu/dist/source/generic-types';
+import { MenuTemplate, MenuMiddleware } from "telegraf-inline-menu"
 import userList from './user-list';
 import votiManager from './voti-manager';
 import notificationManager from './notification-manager';
+import { Message } from 'telegraf/typings/core/types/typegram';
 dotenv.config();
 
 class Bot {
@@ -29,12 +28,14 @@ class Bot {
         this.bot.start(ctx => ctx.reply(this.helpMessage))
         this.bot.help(ctx => ctx.reply(this.helpMessage))
 
-        this.bot.use(this.setNotificationMenu())
+        const menuNotification = this.setNotificationMenu()
+        this.bot.use(menuNotification as any)
+        this.bot.command('/notifiche', ctx => menuNotification.replyToContext(ctx))
 
-        this.bot.command("/setusername", ctx => this.setUsername(ctx))
+        this.bot.command("/setusername", ctx => this.setUsername(ctx, ctx.message.text))
         this.bot.command("/voti", ctx => this.voti(ctx))
         this.bot.command("/ultimovoto", ctx => this.voti(ctx, true))
-        this.bot.command("/stalker", ctx => this.stalker(ctx))
+        this.bot.command("/stalker", ctx => this.stalker(ctx, ctx.message.text))
         this.bot.command("/dimenticami", ctx => this.forgetMe(ctx))
 
         this.bot.command("/ping", ctx => this.sendReply(ctx, "pong"))
@@ -44,8 +45,8 @@ class Bot {
     }
 
 
-    private setUsername(ctx: Context): void {
-        const input = ctx.message?.text?.split(" ");
+    private setUsername(ctx: Context, text: string): void {
+        const input = text.split(" ");
         if (!input || input.length < 2 || input[1].indexOf('.') < 0) {
             this.sendReply(ctx, "Il messaggio deve essere nel formato\n/setusername nome.cognome")
             return;
@@ -57,21 +58,22 @@ class Bot {
         }
     }
 
-    private setNotificationMenu(): ContextNextFunc {
+    private setNotificationMenu() {
 
-        const notificationMenu = new TelegrafInlineMenu('Scegli la tipologia');
-        notificationMenu.toggle("Voto", "voto", {
-            setFunc: ((ctx, newState) => { userList.editNotificationVoti(ctx.chat?.id.toString(), newState) }),
-            isSetFunc: ((ctx) => userList.getNotificationVoti(ctx.chat?.id.toString())),
+        const menuTemplate = new MenuTemplate<Context>(ctx => 'Scegli la tipologia')
+
+        menuTemplate.toggle("Voto", "voto", {
+            set: ((ctx, newState) => { userList.editNotificationVoti(ctx.chat?.id.toString(), newState); return 'ciao' }),
+            isSet: ((ctx) => userList.getNotificationVoti(ctx.chat?.id.toString())),
         })
 
-        notificationMenu.toggle("Promemoria", "promemoria", {
-            setFunc: ((ctx, newState) => { userList.editNotificationRemember(ctx.chat?.id?.toString(), newState) }),
-            isSetFunc: ((ctx) => userList.getNotificationRemember(ctx.chat?.id?.toString())),
+        menuTemplate.toggle("Promemoria", "promemoria", {
+            set: ((ctx, newState) => { userList.editNotificationRemember(ctx.chat?.id?.toString(), newState); return 'ciao' }),
+            isSet: ((ctx) => userList.getNotificationRemember(ctx.chat?.id?.toString())),
         })
 
-        notificationMenu.setCommand("notifiche")
-        return notificationMenu.init();
+        const notificationMenu = new MenuMiddleware('/', menuTemplate);
+        return notificationMenu;
     }
 
     private async voti(ctx: Context, onlyLast: boolean = false) {
@@ -85,8 +87,8 @@ class Bot {
         }
     }
 
-    private async stalker(ctx: Context) {
-        const input = ctx.message?.text?.split(" ");
+    private async stalker(ctx: Context, text: string) {
+        const input = text.split(" ");
         if (!input || input.length < 2 || !input[1] || input[1].indexOf('.') < 0) {
             this.sendReply(ctx, "Il messaggio deve essere nel formato\n/stalker nome.cognome")
             return;
@@ -112,7 +114,7 @@ class Bot {
         }
     }
 
-    private async sendReply(ctx: Context, text: string): Promise<Message | undefined> {
+    private async sendReply(ctx: Context, text: string): Promise<Message.TextMessage | undefined> {
         try {
             return await ctx.reply(text)
         } catch (err) {
@@ -120,7 +122,7 @@ class Bot {
         }
     }
 
-    private editMessage(ctx: Context, msg: Message, text: string) {
+    private editMessage(ctx: Context, msg: Message.TextMessage, text: string) {
         try {
             ctx.telegram.editMessageText(ctx.chat?.id, msg.message_id, undefined, text)
         } catch (err) {
@@ -138,8 +140,6 @@ class Bot {
             console.log(err)
         }
     }
-
-
 
 }
 
