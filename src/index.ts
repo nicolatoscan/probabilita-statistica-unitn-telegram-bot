@@ -21,6 +21,9 @@ class Bot {
 
         notificationManager.start()
 
+        process.once('SIGINT', () => this.bot.stop('SIGINT'))
+        process.once('SIGTERM', () => this.bot.stop('SIGTERM'))
+        
         console.log("Bot started");
     }
 
@@ -29,17 +32,17 @@ class Bot {
         this.bot.help(ctx => ctx.reply(this.helpMessage))
 
         const menuNotification = this.setNotificationMenu()
-        this.bot.use(menuNotification as any)
-        this.bot.command('/notifiche', ctx => menuNotification.replyToContext(ctx))
+        this.bot.use(menuNotification)
+        this.bot.command('/notifiche', ctx => { menuNotification.replyToContext(ctx) })
 
-        this.bot.command("/setusername", ctx => this.setUsername(ctx, ctx.message.text))
-        this.bot.command("/voti", ctx => this.voti(ctx))
-        this.bot.command("/ultimovoto", ctx => this.voti(ctx, true))
+        this.bot.command("/setusername", ctx => { this.setUsername(ctx, ctx.message.text) })
+        this.bot.command("/voti", ctx => { this.voti(ctx) })
+        this.bot.command("/ultimovoto", ctx => { this.voti(ctx, true) })
         // this.bot.command("/stalker", ctx => this.stalker(ctx, ctx.message.text))
-        this.bot.command("/dimenticami", ctx => this.forgetMe(ctx))
+        this.bot.command("/dimenticami", ctx => { this.forgetMe(ctx) })
 
-        this.bot.command("/ping", ctx => this.sendReply(ctx, "pong"))
-        this.bot.command("/cleancache", () => votiManager.cleanCache())
+        this.bot.command("/ping", ctx => { this.sendReply(ctx, "pong") })
+        this.bot.command("/cleancache", () => { votiManager.cleanCache() })
 
         this.bot.on('message', ctx => { this.sendReply(ctx, "Comando non trovato, puoi utilizare /help per aiuto") })
     }
