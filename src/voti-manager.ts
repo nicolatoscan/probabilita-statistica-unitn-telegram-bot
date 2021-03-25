@@ -1,121 +1,102 @@
 import axios from 'axios'
+import { parse } from 'node-html-parser';
 
-
-export interface Voto {
+export interface Mark {
     date: string,
-    value: number
+    value: number,
+    weight: number,
+    excluded: boolean
+}
+
+interface MarksInfo {
+    marks: Mark[],
+    avgs: string[],
 }
 
 class VotiManager {
 
     private cache: { [id: string]: {
         date: Date
-        value: { voti: Voto[], avg: number }
+        value: MarksInfo
     }} = {}
 
     constructor() {
     }
 
-    private async getVotiFromWeb(username: string): Promise<{ voti: Voto[], avg: number } | undefined> {
+    private async getVotiFromWeb(username: string): Promise<MarksInfo | undefined> {
 
-        console.log("Voti di " + username)
+        try {
+            const xocpu = (await axios.post(
+                'http://datascience.maths.unitn.it/ocpu/library/psDoexercises/R/renderResults',
+                { input_user: username }
+            )).headers['x-ocpu-session'];
+            const html = (await axios.get(`http://datascience.maths.unitn.it/ocpu/tmp/${xocpu}/files/output.html`)).data as string
+                
+            if (html.indexOf("Impossibile trovare i risultati") >= 0)
+                return undefined;
+                
+            const parsedHtml = parse(html);
 
-        const xocpu = (await axios.post(
-            'http://datascience.maths.unitn.it/ocpu/library/doexercises/R/renderResults',
-            { input_user: username }
-        )).headers['x-ocpu-session'];
+            const tablesLines = parsedHtml.querySelectorAll('#results_table tbody tr')
 
-        let html: string = (await axios.get(`http://datascience.maths.unitn.it/ocpu/tmp/${xocpu}/files/output.html`)).data
+            const voti =tablesLines.map(tl => {
+                const cells = tl.querySelectorAll('td').map(cell => cell.text.trim())
+                return {
+                    date: cells[1],
+                    value: parseFloat(cells[2]),
+                    weight: parseFloat(cells[3]),
+                    excluded: cells[4] !== 'No'
+                } as Mark
+            }).filter(v => !isNaN(v.value))
 
-        if (html.indexOf("Impossibile trovare i risultati") >= 0)
+            const avgs = parsedHtml.querySelectorAll('p#media').map(avgHtml => avgHtml.text.trim());
+
+            return {
+                marks: voti,
+                avgs: avgs
+            };
+        } catch (ex) {
             return undefined;
-
-        let start = html.indexOf('<table class="table" id="results_table">')
-        let end = html.indexOf('</table>', start)
-
-        if (start < 0 || end < 0)
-            return undefined;
-
-
-        html = html.substring(start, end);
-        start = html.indexOf('<tbody>');
-        end = html.indexOf("</tbody>", start);
-        if (start < 0 || end < 0)
-            return undefined;
-
-        start += 8;
-        html = html.substring(start, end);
-
-        const lines = html.split('\n').filter(s =>
-            s &&
-            s.indexOf('tr') < 0 &&
-            s.indexOf('td') < 0
-        );
-
-        const voti: Voto[] = [];
-
-        for (let i = 2; i < lines.length; i += 3) {
-            voti.push({
-                date: lines[i - 1],
-                value: parseFloat(lines[i])
-            })
         }
-
-        return {
-            voti: voti,
-            avg: voti.length == 0 ? 0 : voti.map(v => v.value).reduce((a, b) => a + b) / voti.length
-        };
-
     }
 
-    public async getVoti(username: string): Promise<{ voti: Voto[], avg: number } | undefined> {
+    public async getVoti(username: string): Promise<MarksInfo | undefined> {
         if (this.cache[username] &&
             this.cache[username].date.getDate() == new Date().getDate() &&
             this.cache[username].date.getMonth() == new Date().getMonth() &&
             this.cache[username].date.getFullYear() == new Date().getFullYear()
-            ) {
-
-                console.log("Cached")
-                return this.cache[username].value;
+        ) {
+            console.log(`Getting ${username} votes cached`)
+            return this.cache[username].value;
         } else {
-            
-            let newValue = undefined
-            try {
-                newValue = await this.getVotiFromWeb(username);
-            } catch (error) {
-                console.log("Error getting voti")                
-            }
+            console.log(`Getting ${username} votes`)
+            const newValue = await this.getVotiFromWeb(username);
             if (newValue) {
                 this.cache[username] = {
                     date: new Date(),
                     value: newValue
                 }
+                return newValue;
             }
-                
-            return newValue
         }
+
+        return undefined;
     }
 
     public async getVotiMsg(username: string, onlyLast: boolean = false): Promise<string> {
         if (!username)
             return "Username non trovato, puoi impostare l'username con\n/setusername nome.cognome";
 
-        const voti = await this.getVoti(username);
+        const marksInfo = await this.getVoti(username);
 
-        if (!voti) {
+        if (!marksInfo) {
             return "Impossibile trovare i voti";
         }
 
-        let res = `Voti di: ${username}\n\nMedia: ${voti.avg?.toString()?.substring(0, 5)}\n`;
-        if (onlyLast) {
-            if (voti.voti.length > 0)
-                res += `${voti.voti[0].date}: ${voti.voti[0].value}`
-        } else {
-            res += voti.voti.map(v => `${v.date}: ${v.value}`).join("\n")
-        }
+        const toPrintMarks = onlyLast ? marksInfo.marks.slice(0, 1) : marksInfo.marks
 
-        return res;
-
+        return `Voti di: ${username}\n\n${marksInfo.avgs.join('\n')}\n\nVoti:\n` +
+            toPrintMarks.map(v => `${v.date}: ${v.value}`).join("\n")
     }
 
     public async cleanCache() {

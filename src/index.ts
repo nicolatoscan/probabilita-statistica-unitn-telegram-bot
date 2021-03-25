@@ -29,13 +29,13 @@ class Bot {
         this.bot.start(ctx => ctx.reply(this.helpMessage))
         this.bot.help(ctx => ctx.reply(this.helpMessage))
 
-        this.bot.use(this.setMenuNotifiche())
+        this.bot.use(this.setNotificationMenu())
 
         this.bot.command("/setusername", ctx => this.setUsername(ctx))
         this.bot.command("/voti", ctx => this.voti(ctx))
         this.bot.command("/ultimovoto", ctx => this.voti(ctx, true))
         this.bot.command("/stalker", ctx => this.stalker(ctx))
-        this.bot.command("/dimenticami", ctx => this.dimenticami(ctx))
+        this.bot.command("/dimenticami", ctx => this.forgetMe(ctx))
 
         this.bot.command("/ping", ctx => this.sendReply(ctx, "pong"))
         this.bot.command("/cleancache", () => votiManager.cleanCache())
@@ -57,7 +57,7 @@ class Bot {
         }
     }
 
-    private setMenuNotifiche(): ContextNextFunc {
+    private setNotificationMenu(): ContextNextFunc {
 
         const notificationMenu = new TelegrafInlineMenu('Scegli la tipologia');
         notificationMenu.toggle("Voto", "voto", {
@@ -98,7 +98,7 @@ class Bot {
         }
     }
 
-    private async dimenticami(ctx: Context) {
+    private async forgetMe(ctx: Context) {
         userList.removeUsername(ctx.chat?.id.toString())
         this.sendReply(ctx, "I tuoi dati sono stati rimossi")
     }
@@ -116,7 +116,7 @@ class Bot {
         try {
             return await ctx.reply(text)
         } catch (err) {
-            console.log("Error sendig message")
+            console.log("Error sending message")
         }
     }
 

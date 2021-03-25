@@ -3,7 +3,7 @@ import bot from '.';
 
 export interface UserData {
     username: string,
-    notificationVoti: boolean;
+    notificationMarks: boolean;
     notificationRemember: boolean;
 }
 
@@ -54,7 +54,7 @@ class UserList {
         if (chatId) {
             this.users[chatId] = {
                 username: username.toLowerCase(),
-                notificationVoti: false,
+                notificationMarks: false,
                 notificationRemember: false,
             };
             this.fileToUpdate();
@@ -70,8 +70,8 @@ class UserList {
             this.addUser(chatId, "")
 
 
-        if (this.users[chatId].notificationVoti !== status) {
-            this.users[chatId].notificationVoti = status;
+        if (this.users[chatId].notificationMarks !== status) {
+            this.users[chatId].notificationMarks = status;
             this.fileToUpdate();
         }
     }
@@ -96,7 +96,7 @@ class UserList {
         }
 
         if (this.users[chatId])
-            return this.users[chatId].notificationVoti;
+            return this.users[chatId].notificationMarks;
         return false;
     }
 
@@ -109,7 +109,7 @@ class UserList {
     public getUserWithNotificationVoti(): { username: string, chatId: string }[] {
         const res: { username: string, chatId: string }[] = [];
         for (let u in this.users) {
-            if (this.users[u].notificationVoti)
+            if (this.users[u].notificationMarks)
                 res.push({ username: this.users[u].username, chatId: u });
         }
 
