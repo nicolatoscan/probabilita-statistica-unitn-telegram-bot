@@ -1,30 +1,32 @@
-import * as dotenv from 'dotenv';
 import { Telegraf, Context } from "telegraf"
 import { MenuTemplate, MenuMiddleware } from "telegraf-inline-menu"
+import { Message } from 'telegraf/typings/core/types/typegram';
+import Server from './server';
 import userList from './user-list';
 import votiManager from './voti-manager';
 import notificationManager from './notification-manager';
-import { Message } from 'telegraf/typings/core/types/typegram';
-dotenv.config();
+import dotenv from 'dotenv'
+dotenv.config()
 
 class Bot {
     private bot: Telegraf<Context>;
+    private server: Server;
 
     private helpMessage: string = "Imposta il tuo username con /setusername nome.cognome e potrai vedere i tuoi voti con /voti o /ultimovoto\n\n" +
         "Puoi ricevere automaticamente il voto a mezzanotte o un promemoria alle 23 attivando le /notifiche\n\n" +
         "Se il bot non funziona come dovrebbe o hai dei suggerimenti, contattami a @nicolatoscan"
 
     constructor() {
+        this.server = new Server()
         this.bot = new Telegraf(process.env.BOT_TOKEN ?? "")
+
         this.middleware()
-        this.bot.launch()
-
-        notificationManager.start()
-
         process.once('SIGINT', () => this.bot.stop('SIGINT'))
         process.once('SIGTERM', () => this.bot.stop('SIGTERM'))
-        
-        console.log("Bot started");
+
+        this.bot.launch()
+        notificationManager.start()
+        console.log("Bot started")
     }
 
     private middleware(): void {
@@ -42,6 +44,7 @@ class Bot {
         this.bot.command("/dimenticami", ctx => { this.forgetMe(ctx) })
 
         this.bot.command("/ping", ctx => { this.sendReply(ctx, "pong") })
+        this.bot.command("/pingserver", () => { this.server.ping() })
         this.bot.command("/cleancache", () => { votiManager.cleanCache() })
 
         this.bot.on('message', ctx => { this.sendReply(ctx, "Comando non trovato, puoi utilizare /help per aiuto") })
@@ -63,7 +66,7 @@ class Bot {
 
     private setNotificationMenu() {
 
-        const menuTemplate = new MenuTemplate<Context>(ctx => 'Scegli la tipologia')
+        const menuTemplate = new MenuTemplate<Context>(() => 'Scegli la tipologia')
 
         menuTemplate.toggle("Voto", "voto", {
             set: ((ctx, newState) => { userList.editNotificationVoti(ctx.chat?.id.toString(), newState); return 'ciao' }),

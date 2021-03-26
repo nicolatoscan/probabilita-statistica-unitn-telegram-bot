@@ -25,7 +25,7 @@ class NotificationManager {
         const users = userList.getUserWithNotificationVoti();
         for (let index = 0; index < users.length; index++) {
             const u = users[index];
-            await bot.sendMessage(u.chatId, await votiManager.getVotiMsg(u.username, true))
+            bot.sendMessage(u.chatId, await votiManager.getVotiMsg(u.username, true))
         }
         console.log(" -- Notifiche Finite")
     }
