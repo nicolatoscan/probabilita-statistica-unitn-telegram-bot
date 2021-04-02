@@ -43,7 +43,7 @@ class VotiManager {
                 const cells = tl.querySelectorAll('td').map(cell => cell.text.trim())
                 return {
                     date: cells[1],
-                    value: parseFloat(cells[2]),
+                    value: cells[2] === 'NA' ? 0 : parseFloat(cells[2]),
                     weight: parseFloat(cells[3]),
                     excluded: cells[4] !== 'No'
                 } as Mark
