@@ -33,7 +33,7 @@ class NotificationManager {
     private async rememberPeople() {
         const users = userList.getUserToRemember();
         users.forEach(async (u) => {
-            bot.sendMessage(u.chatId, "Ricordati di consegnare l'esercizio di oggi");
+            bot.sendMessage(u.chatId, "Ricordati di consegnare l'esercizio di ieri");
         })
     }
 }
