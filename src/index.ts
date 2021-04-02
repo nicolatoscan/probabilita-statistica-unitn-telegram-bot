@@ -1,7 +1,7 @@
 import { Telegraf, Context } from "telegraf"
 import { MenuTemplate, MenuMiddleware } from "telegraf-inline-menu"
 import { Message } from 'telegraf/typings/core/types/typegram';
-import Server from './server';
+// import Server from './server';
 import userList from './user-list';
 import votiManager from './voti-manager';
 import notificationManager from './notification-manager';
@@ -10,14 +10,14 @@ dotenv.config()
 
 class Bot {
     private bot: Telegraf<Context>;
-    private server: Server;
+    // private server: Server;
 
     private helpMessage: string = "Imposta il tuo username con /setusername nome.cognome e potrai vedere i tuoi voti con /voti o /ultimovoto\n\n" +
         "Puoi ricevere automaticamente il voto a mezzanotte o un promemoria alle 23 attivando le /notifiche\n\n" +
         "Se il bot non funziona come dovrebbe o hai dei suggerimenti, contattami a @nicolatoscan"
 
     constructor() {
-        this.server = new Server()
+        // this.server = new Server()
         this.bot = new Telegraf(process.env.BOT_TOKEN ?? "")
 
         this.middleware()
@@ -44,7 +44,7 @@ class Bot {
         this.bot.command("/dimenticami", ctx => { this.forgetMe(ctx) })
 
         this.bot.command("/ping", ctx => { this.sendReply(ctx, "pong") })
-        this.bot.command("/pingserver", () => { this.server.ping() })
+        // this.bot.command("/pingserver", () => { this.server.ping() })
         this.bot.command("/cleancache", () => { votiManager.cleanCache() })
 
         this.bot.on('message', ctx => { this.sendReply(ctx, "Comando non trovato, puoi utilizare /help per aiuto") })
