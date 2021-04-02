@@ -47,7 +47,10 @@ class VotiManager {
                     weight: parseFloat(cells[3]),
                     excluded: cells[4] !== 'No'
                 } as Mark
-            }).filter(v => !isNaN(v.value)).sort((a, b) => b.date.localeCompare(a.date))
+            })
+                .filter(v => !isNaN(v.value))
+                .filter(v => v.date.substring(0, 7) > '2021-02')
+                .sort((a, b) => b.date.localeCompare(a.date))
 
             const avgs = parsedHtml.querySelectorAll('p#media').map(avgHtml => avgHtml.text.trim());
 
